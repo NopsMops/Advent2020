@@ -20,57 +20,30 @@ namespace Star1
             {
                 List<(string com, int vorint, int val)> instList = new List<(string com, int vorint, int val)>();
                 string[] lines = File.ReadAllLines(path);
-                foreach (string item in lines)
-                {
-                    char vor = '+';
-                    int vorint = 1;
-                    int val = 0;
+                foreach (string item in lines) {
+                    int vorint = -1;
                     string[] op = item.Split(' ');
-                    if (op[1].StartsWith('+'))
-                    {
-                        vor = '+';
-                        vorint = 1;
-                    } 
-                    else
-                    {
-                        vor = '-';
-                        vorint = -1;
-                    }
-                    
-                    val = int.Parse(op[1].Trim(vor));
-                    instList.Add(( op[0] , vorint,  val));
+                    if (op[1].StartsWith('+')) vorint = 1;
+                    instList.Add((op[0], vorint, int.Parse(op[1].Substring(1))));
                 }
-                List<int> place = new List<int>();
-               
-                int accumulator = 0;
-                int index = 0;
-                place.Add(index);
-
-                while (true)
-                {
-                    if( instList[index].com == "acc")
-                    {
+                int accumulator = 0, index = 0;
+                while (true) {
+                    if (instList[index].com == "acc") {
                         accumulator += instList[index].vorint * instList[index].val;
+                        instList[index] = ("stop", instList[index].vorint, instList[index].val);
                         index++;
-                        if( place.Contains(index))break;
-                        place.Add(index);
                     }
-                    else if(instList[index].com == "jmp")
-                    {
+                    else if (instList[index].com == "jmp") {
+                        instList[index] = ("stop", instList[index].vorint, instList[index].val);
                         index += instList[index].vorint * instList[index].val;
-                        if (place.Contains(index)) break;
-                        place.Add(index);
                     }
-                    else
-                    {
+                    else if (instList[index].com == "nop") {
+                        instList[index] = ("stop", instList[index].vorint, instList[index].val);
                         index++;
-                        if (place.Contains(index)) break;
-                        place.Add(index);
                     }
+                    else break;
                 }
-
                 Console.WriteLine("accumulator: {0}", accumulator);
-
             }
         }
     }
