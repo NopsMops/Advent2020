@@ -14,108 +14,80 @@ namespace Star1
         static void Main(string[] args)
         {
 
-            string path = @"C:\sw\AdventOfCode_2020\Advent\Input\star1_org.txt";
-            //string path = @"C:\sw\AdventOfCode_2020\Advent\Input\test11.txt";
+            //string path = @"C:\sw\AdventOfCode_2020\Advent\Input\star1_org.txt";
+            string path = @"C:\sw\AdventOfCode_2020\Advent\Input\test11.txt";
             if (File.Exists(path)) {
                
-
                 string[] lines = File.ReadAllLines(path);
+
                 int colSize = lines[0].Length;
-                int rowSize = lines.Length;
+                int rowSize = lines.Length;               
+                char[][] seatsA = new char[rowSize][];
 
-                List<List<char>> seatsA = new List<List<char>>();
-                List<char> frameu = new List<char>();
-                for ( int i = 0; i < colSize + 2; i++) {
-                    frameu.Add('.');
+                for( int i = 0; i < rowSize; i++) {
+                    seatsA[i] = lines[i].ToCharArray();
                 }
-                seatsA.Add(frameu);
-
-                foreach (string item in lines) {
-
-                    List<char> row = new List<char>();
-                    row.Add('.');
-                    row.AddRange(item.ToCharArray());
-                    row.Add('.');
-                    seatsA.Add(row);
-                }
-
-                seatsA.Add(frameu);
-
+ 
                 bool found = true;
                 while (found) {
                     found = false;
 
-                    char[,] seatsB = new char[rowSize + 2, colSize + 2];
-
-                    for (int i = 0; i < rowSize + 2; i++) {
-
-                        for (int n = 0; n < colSize + 2; n++) {
-                            seatsB[i, n] = seatsA[i][n];
-                        }
-
-                    }
-
-                    for (int i = 1; i < rowSize + 1; i++) {
-                        for (int n = 1; n < colSize + 1; n++) {
-
+                    char[][] seatsB = new char[rowSize][];                   
+                    for (int i = 0; i < rowSize; i++) {
+                        seatsB[i] = new char[colSize];
+                        for (int n = 0; n < colSize; n++) {
                             
                             if (seatsA[i][n] == 'L') {
-                                int sitfree = 0; 
-                                if (seatsA[i][n - 1] == 'L' || seatsA[i][n - 1] == '.') { sitfree++; }
-                                if (seatsA[i + 1][n - 1] == 'L' || seatsA[i + 1][n - 1] == '.') { sitfree++; }
-                                if (seatsA[i + 1][n] == 'L' || seatsA[i + 1][n] == '.') { sitfree++; }
-                                if (seatsA[i + 1][n + 1] == 'L' || seatsA[i + 1][n + 1] == '.') { sitfree++; }
-                                if (seatsA[i][n + 1] == 'L' || seatsA[i][n + 1] == '.') { sitfree++; }
-                                if (seatsA[i - 1][n + 1] == 'L' || seatsA[i - 1][n + 1] == '.') { sitfree++; }
-                                if (seatsA[i - 1][n] == 'L' || seatsA[i - 1][n] == '.') { sitfree++; }
-                                if (seatsA[i - 1][n - 1] == 'L' || seatsA[i - 1][n - 1] == '.') { sitfree++; }
-                                if (sitfree == 8) {
-                                    seatsB[i, n] = '#';
+                                seatsB[i][n] = 'L';
+                                if (0 == CountOcc(seatsA, i, n) ) {
+                                    seatsB[i][n] = '#';
                                     found = true;  
                                 }                              
-                            }
-                           
+                            }                           
                             else if (seatsA[i][n] == '#' ) {
-                                int sitocc = 0;
-                                if (seatsA[i][n - 1] == '#') { sitocc++; }
-                                if (seatsA[i + 1][n - 1] == '#') { sitocc++; }
-                                if (seatsA[i + 1][n] == '#') { sitocc++; }
-                                if (seatsA[i + 1][n + 1] == '#') { sitocc++; }
-                                if (seatsA[i][n + 1] == '#') { sitocc++; }
-                                if (seatsA[i - 1][n + 1] == '#') { sitocc++; }
-                                if (seatsA[i - 1][n] == '#') { sitocc++; }
-                                if (seatsA[i - 1][n - 1] == '#') { sitocc++; }
-                                if (sitocc > 3) {
-                                    seatsB[i, n] = 'L';
+                                seatsB[i][n] = '#';
+                                if ( CountOcc(seatsA, i, n) > 3) {
+                                    seatsB[i][n] = 'L';
                                     found = true;
                                 }
                             }
-
+                            else seatsB[i][n] = '.';
                         }
                     }
                     // vertauche a b
-                    seatsA.Clear();
-
-                    for (int i = 0; i < rowSize + 2; i++) {
-                        List<char> tmp1 = new List<char>();
-                        for(int n = 0; n < colSize + 2; n++) {
-                            tmp1.Add(seatsB[i, n]);
-                        }
-                        seatsA.Add(tmp1);
-                    }
+                    for (int i = 0; i < rowSize; i++) {
+                        seatsA[i] = (char[])seatsB[i].Clone();
+                    }                    
                 }
+
                 int counter = 0;
-                for (int i = 1; i < rowSize + 1; i++) {
-                    
-                    for (int n = 1; n < colSize + 1; n++) {
-                        if(seatsA[i][n] == '#')
+                for (int i = 0; i < rowSize; i++) {                    
+                    for (int n = 0; n < colSize; n++) {
+                        if (seatsA[i][n] == '#') {
                             counter++;
+                        }
                     }
- 
                 }
                 Console.WriteLine("occupied {0}", counter);
             }
         }
+        public static bool IsValid(char[][] i_seats, int i_row, int i_col)
+        {
+            if (i_row < 0 || i_col < 0 || i_row >= i_seats.Length || i_col >= i_seats[0].Length) return false;
+            return true;
+        }
+        public static int CountOcc(char[][] i_seats, int i, int n)
+        {
+            int sitocc = 0;
+            if (IsValid(i_seats, i, n - 1) && i_seats[i][n - 1] == '#') { sitocc++; }
+            if (IsValid(i_seats, i + 1, n - 1) && i_seats[i + 1][n - 1] == '#') { sitocc++; }
+            if (IsValid(i_seats, i + 1, n) && i_seats[i + 1][n] == '#') { sitocc++; }
+            if (IsValid(i_seats, i + 1, n + 1) && i_seats[i + 1][n + 1] == '#') { sitocc++; }
+            if (IsValid(i_seats, i, n + 1) && i_seats[i][n + 1] == '#') { sitocc++; }
+            if (IsValid(i_seats, i - 1, n + 1) && i_seats[i - 1][n + 1] == '#') { sitocc++; }
+            if (IsValid(i_seats, i - 1, n) && i_seats[i - 1][n] == '#') { sitocc++; }
+            if (IsValid(i_seats, i - 1, n - 1) && i_seats[i - 1][n - 1] == '#') { sitocc++; }
+            return sitocc;
+        }
     }
-}
-            }                              
+}            

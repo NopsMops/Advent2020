@@ -23,61 +23,48 @@ namespace Star2
             if (File.Exists(path)) {
 
                 string[] lines = File.ReadAllLines(path);
+
                 int colSize = lines[0].Length;
                 int rowSize = lines.Length;
+                char[][] seatsA = new char[rowSize][];
 
-                List<List<char>> seatsA = new List<List<char>>();
-              
-                foreach (string item in lines) {
-                    List<char> tmp = new List<char>();
-                    tmp.AddRange(item.ToCharArray());
-                    seatsA.Add(tmp);
+                for (int i = 0; i < rowSize; i++) {
+                    seatsA[i] = lines[i].ToCharArray();
                 }
 
                 bool found = true;
                 while (found) {
                     found = false;
 
-                    char[,] seatsB = new char[rowSize, colSize];
-
+                    char[][] seatsB = new char[rowSize][];
                     for (int i = 0; i < rowSize; i++) {
-
+                        seatsB[i] = new char[colSize];
                         for (int n = 0; n < colSize; n++) {
-                            seatsB[i, n] = seatsA[i][n];
-                        }
-                    }
-
-                    for (int i = 0; i < rowSize; i++) {
-                        for (int n = 0; n < colSize; n++) {
-
 
                             if (seatsA[i][n] == 'L') {
-                                int sitocc = SeeOcc(seatsA, i,n) ;
-                                if (sitocc == 0) {
-                                    seatsB[i, n] = '#';
+                                seatsB[i][n] = 'L';
+                                if (SeeOcc(seatsA, i, n) == 0) {
+                                    seatsB[i][n] = '#';
                                     found = true;
                                 }
                             }
-
                             else if (seatsA[i][n] == '#') {
-                                int sitocc = SeeOcc(seatsA, i, n);
-                                if (sitocc > 4) {
-                                    seatsB[i, n] = 'L';
+                                seatsB[i][n] = '#';
+                                if (SeeOcc(seatsA, i, n) > 4) {
+                                    seatsB[i][n] = 'L';
                                     found = true;
                                 }
                             }
+                            else seatsB[i][n] = '.';
                         }
                     }
-                    // vertauche a b
-                    seatsA.Clear();
-
+                   // vertauche a b
                     for (int i = 0; i < rowSize; i++) {
-                        List<char> tmp1 = new List<char>();
-                        for (int n = 0; n < colSize; n++) {
-                            tmp1.Add(seatsB[i, n]);
-                        }
-                        seatsA.Add(tmp1);
+                        seatsA[i] = (char[])seatsB[i].Clone();
                     }
+
+                    // print
+                    //Print(seatsA);
                 }
                 int counter = 0;
                 for (int i = 0; i < rowSize; i++) {
@@ -90,20 +77,30 @@ namespace Star2
                 Console.WriteLine("occupied {0}", counter);
             }
         }
-        public static int SeeOcc(List<List<char>> i_seatsA, int i_row ,int i_col )
+        public static void Print(char[][] i_seat )
         {
-            int colSize = i_seatsA[0].Count;
-            int rowSize = i_seatsA.Count;
+            // print
+            int colSize = i_seat[0].Length;
+            int rowSize = i_seat.Length;
+
+            for (int i = 0; i < rowSize; i++) {
+                for (int n = 0; n < colSize; n++) {
+                    Console.Write("{0} ", i_seat[i][n]);
+                }
+                Console.WriteLine();
+            }
+        }
+        public static int SeeOcc(char[][] i_seatsA, int i_row ,int i_col )
+        {
+            int colSize = i_seatsA[0].Length;
+            int rowSize = i_seatsA.Length;
 
             int occu = 0;
 
-
             // rechts
-            int stepsH = colSize - i_col;
-            int stepsV = 0;
-            for ( int i=1 ; i < stepsH; i++) {
-                if (i_seatsA[i_row][i_col + i] == '#' || i_seatsA[i_row][i_col + i] == 'L') {
-                    if (i_seatsA[i_row][i_col + i] == '#') {
+            for ( int i=0 ; i < colSize; i++) {
+                if (IsValid(i_seatsA, i_row, i_col + i + 1) && (i_seatsA[i_row][i_col + i +1 ] == '#' || i_seatsA[i_row][i_col + i + 1] == 'L')) {
+                    if (i_seatsA[i_row][i_col + i + 1] == '#') {
                         occu++;
                     }
                     break;
@@ -111,8 +108,8 @@ namespace Star2
             }
 
             // rechts oben
-            stepsH = colSize - i_col;
-            stepsV = i_row+1;            
+            int stepsH = colSize - i_col;
+            int stepsV = i_row+1;            
             for (int i = 1, n = 1; n < stepsV && i < stepsH; n++, i++) {
                 if (i_seatsA[i_row - n][i_col + i] == '#' || i_seatsA[i_row - n][i_col + i] == 'L') {
                     if (i_seatsA[i_row - n][i_col + i] == '#') {
@@ -192,6 +189,11 @@ namespace Star2
                 }
             }
             return occu;
+        }
+        public static bool IsValid(char[][] i_seats, int i_row, int i_col)
+        {
+            if (i_row < 0 || i_col < 0 || i_row >= i_seats.Length || i_col >= i_seats[0].Length) return false;
+            return true;
         }
     }
 }                                
