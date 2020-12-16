@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
 // silver 13727901897109
-// gold 
+// gold 5579916171823
 
 namespace Star1
 {
